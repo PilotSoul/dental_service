@@ -132,3 +132,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# additional
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
+.idea/
+media
