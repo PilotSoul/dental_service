@@ -4,16 +4,12 @@ from rest_framework import generics
 import uuid
 from rest_framework.response import Response
 from rest_framework.views import APIView
+import io
+from PIL import Image as im
+from .image_recognition import *
 
 from .models import Image
 
-# Create your views here.
-from .serializers import DentalDetectionSerializer
-
-
-# class DentalDetectionAPIView(generics.ListAPIView):
-#     queryset = Image.objects.all()
-#     serializer_class = DentalDetectionSerializer
 
 class DentalDetectionAPIView(APIView):
     def get(self, request):
@@ -26,4 +22,10 @@ class DentalDetectionAPIView(APIView):
             name=str(request.data['photo'])+new_uuid,
             photo=request.data['photo']
         )
+        uploaded_img = Image.objects.filter().last()
+        img_bytes = uploaded_img.photo.read()
+        img = im.open(io.BytesIO(img_bytes))
+        result = detect_teeth_with_yolo(img)
+        print(result)
+
         return Response('ok')

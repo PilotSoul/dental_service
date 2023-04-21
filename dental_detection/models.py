@@ -1,6 +1,4 @@
 from django.db import models
-import uuid
-import os
 
 
 class Image(models.Model):
