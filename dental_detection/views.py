@@ -18,14 +18,15 @@ class DentalDetectionAPIView(APIView):
 
     def post(self, request):
         new_uuid = str(uuid.uuid4())[:7]
-        image_new = Image.objects.create(
+        uploaded_img = Image.objects.create(
             name=str(request.data['photo'])+new_uuid,
             photo=request.data['photo']
         )
-        uploaded_img = Image.objects.filter().last()
-        img_bytes = uploaded_img.photo.read()
-        img = im.open(io.BytesIO(img_bytes))
-        result = detect_teeth_with_yolo(img)
-        print(result)
+        # uploaded_img = Image.objects.filter().last()
+        path_to_image = str(uploaded_img.photo)
+        # img_bytes = uploaded_img.photo.read()
+        # img = im.open(io.BytesIO(img_bytes))
+        if detect_teeth_with_yolo(path_to_image):
+            uploaded_img.is_recognized = True
 
         return Response('ok')

@@ -7,7 +7,7 @@ class Image(models.Model):
     accuracy = models.FloatField(null=True)
     time_create = models.DateTimeField(auto_now_add=True)
     time_update = models.DateTimeField(auto_now=True)
-    is_recognized = models.BooleanField(default=True)
+    is_recognized = models.BooleanField(default=False)
     objects = models.Manager()
 
     def __str__(self):

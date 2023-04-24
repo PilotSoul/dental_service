@@ -1,21 +1,30 @@
-import io
-from PIL import Image as im
-import torch
+from ultralytics import YOLO
+from os import path
+import shutil
+
+path_weightfile = ""
+path_to_media = ""
+destination_path = ""
+saved_recognized_path = ""
+model = YOLO(path_weightfile)
 
 
-path_hubconfig = "ultralytics/yolov8"
-path_weightfile = "yolo/best.pt"
+def change_yolo_output_path(uploaded_img_path:str) -> str:
+    new_location = ""
+    source_path = saved_recognized_path + uploaded_img_path.split("/")[-1]
+    if path.exists(source_path):
+        new_location = shutil.move(source_path, destination_path)
+    shutil.rmtree(saved_recognized_path)
+    return new_location
 
-model = torch.hub.load(path_hubconfig, 'custom',
-                       path=path_weightfile, source='local')
 
-
-def detect_teeth_with_yolo(img):
-    results = model(img, size=250)
-    results.render()
-    for img in results.imgs:
-        img_base64 = im.fromarray(img)
-        img_base64.save("media/yolo_out/image0.jpg", format="JPEG")
-
-    inference_img = "/media/yolo_out/image0.jpg"
-    return inference_img
+def detect_teeth_with_yolo(img_path: str) -> bool:
+    full_path = path_to_media + img_path
+    try:
+        model.predict(full_path, save=True, imgsz=250, conf=0.7)
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return False
+    if change_yolo_output_path(img_path):
+        return True
+    return False
