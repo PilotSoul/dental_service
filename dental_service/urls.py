@@ -18,9 +18,10 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from dental_detection.views import DentalDetectionAPIView
+from dental_detection.views import DentalDetectionAPIView, DentalDetectionNumbersAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/imageslist/', DentalDetectionAPIView.as_view()),
+    path('api/v1/detect/', DentalDetectionAPIView.as_view()),
+    path('api/v1/detectnumbers/', DentalDetectionNumbersAPIView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

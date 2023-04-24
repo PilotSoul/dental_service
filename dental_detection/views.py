@@ -1,32 +1,44 @@
 from django.forms import model_to_dict
+from django.http import HttpResponse, FileResponse
 from django.shortcuts import render
 from rest_framework import generics
 import uuid
 from rest_framework.response import Response
 from rest_framework.views import APIView
-import io
-from PIL import Image as im
 from .image_recognition import *
 
 from .models import Image
 
 
 class DentalDetectionAPIView(APIView):
-    def get(self, request):
-        lst = Image.objects.all().values()
-        return Response({'images': list(lst)})
-
     def post(self, request):
         new_uuid = str(uuid.uuid4())[:7]
         uploaded_img = Image.objects.create(
             name=str(request.data['photo'])+new_uuid,
             photo=request.data['photo']
         )
-        # uploaded_img = Image.objects.filter().last()
         path_to_image = str(uploaded_img.photo)
-        # img_bytes = uploaded_img.photo.read()
-        # img = im.open(io.BytesIO(img_bytes))
-        if detect_teeth_with_yolo(path_to_image):
+        if recognized_image := detect_teeth_with_yolo(path_to_image, model_path="model_without_numbers"):
             uploaded_img.is_recognized = True
+            uploaded_img.recognized_path = recognized_image
+            img = open(uploaded_img.recognized_path, 'rb')
+            return FileResponse(img)
 
-        return Response('ok')
+        return Response('Teeth are not recognized')
+
+
+class DentalDetectionNumbersAPIView(APIView):
+    def post(self, request):
+        new_uuid = str(uuid.uuid4())[:7]
+        uploaded_img = Image.objects.create(
+            name=str(request.data['photo'])+new_uuid,
+            photo=request.data['photo']
+        )
+        path_to_image = str(uploaded_img.photo)
+        if recognized_image := detect_teeth_with_yolo(path_to_image, model_path="model_with_numbers"):
+            uploaded_img.is_recognized = True
+            uploaded_img.recognized_path = recognized_image
+            img = open(uploaded_img.recognized_path, 'rb')
+            return FileResponse(img)
+
+        return Response('Teeth are not recognized')
